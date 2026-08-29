@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Juice Shop Pentest Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:#0e1117; --panel:#161b22; --panel2:#1c2230; --txt:#e6edf3;
+    --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --red:#f85149;
+    --yellow:#d29922; --border:#30363d;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--txt);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  header { padding:16px 24px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  header h1 { margin:0; font-size:18px; font-weight:600; }
+  header .stat { color:var(--muted); font-size:13px; }
+  header .stat b { color:var(--txt); }
+  main { padding:20px 24px; max-width:1500px; margin:0 auto; }
+  .grid { display:grid; grid-template-columns: 320px 1fr 1fr; gap:16px; margin-bottom:16px; }
+  .panel { background:var(--panel); border:1px solid var(--border); border-radius:8px;
+    padding:16px; }
+  .panel h2 { margin:0 0 12px; font-size:13px; text-transform:uppercase;
+    color:var(--muted); letter-spacing:.05em; font-weight:600; }
+  .cats { display:flex; flex-direction:column; gap:10px; }
+  .cat { }
+  .cat .label { display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px; }
+  .cat .label .n { color:var(--muted); }
+  .bar { height:8px; background:var(--panel2); border-radius:4px; overflow:hidden; }
+  .bar > div { height:100%; background:var(--accent); transition:width .4s; }
+  .log { height:340px; overflow-y:auto; background:#0a0d12; border-radius:6px;
+    padding:10px; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .log .line { white-space:pre-wrap; word-break:break-word; }
+  .log .info { color:var(--txt); }
+  .log .success { color:var(--green); font-weight:600; }
+  .log .warn { color:var(--yellow); }
+  .log .error { color:var(--red); }
+  .log .ts { color:var(--muted); margin-right:6px; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--border); }
+  th { color:var(--muted); font-weight:600; text-transform:uppercase; font-size:11px; }
+  td.status { font-weight:600; }
+  .st-solved { color:var(--green); }
+  .st-pending { color:var(--muted); }
+  .diff { display:inline-block; min-width:18px; text-align:center; padding:1px 5px;
+    border-radius:4px; font-size:11px; background:var(--panel2); color:var(--muted); }
+  .filter { margin-bottom:10px; }
+  .filter select { background:var(--panel2); color:var(--txt); border:1px solid var(--border);
+    border-radius:4px; padding:4px 8px; font-size:12px; }
+  .chartwrap { position:relative; height:220px; }
+  .pulse { width:8px; height:8px; border-radius:50%; background:var(--green);
+    box-shadow:0 0 0 0 var(--green); animation:pulse 1.6s infinite; display:inline-block; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(63,185,80,.6)} 70%{box-shadow:0 0 0 8px rgba(63,185,80,0)} 100%{box-shadow:0 0 0 0 rgba(63,185,80,0)} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Juice Shop Pentest <span class="pulse" id="live"></span></h1>
+  <span class="stat">Solved <b id="solved">0</b>/<b id="total">0</b></span>
+  <span class="stat">Points <b id="points">0</b></span>
+  <span class="stat">Categories <b id="catcount">0</b></span>
+</header>
+<main>
+  <div class="grid">
+    <div class="panel">
+      <h2>Progress</h2>
+      <div class="chartwrap"><canvas id="donut"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Points over time</h2>
+      <div class="chartwrap"><canvas id="line"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Category breakdown</h2>
+      <div class="cats" id="cats"></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-bottom:16px">
+    <h2>Live log</h2>
+    <div class="log" id="log"></div>
+  </div>
+  <div class="panel">
+    <h2>Challenges</h2>
+    <div class="filter"><select id="catfilter"><option value="">All categories</option></select></div>
+    <table id="table"><thead><tr><th>Challenge</th><th>Category</th><th>Diff</th><th>Status</th></tr></thead><tbody></tbody></table>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let challenges = [];
+let donut, lineChart;
+const palette = ['#58a6ff','#3fb950','#d29922','#f85149','#a371f7','#ff7b72','#79c0ff','#56d4dd','#e3b341','#f0883e','#7ee787','#ffa657','#d2a8ff','#ff9eb1','#7ee787'];
+
+function ts(t){ const d=new Date((t||Date.now()/1000)*1000); return d.toLocaleTimeString(); }
+
+function initCharts(){
+  donut = new Chart($('donut'), {type:'doughnut',data:{labels:['Solved','Remaining'],
+    datasets:[{data:[0,1],backgroundColor:['#3fb950','#30363d'],borderWidth:0}]},
+    options:{cutout:'68%',plugins:{legend:{position:'bottom',labels:{color:'#8b949e'}}}}});
+  lineChart = new Chart($('line'), {type:'line',data:{labels:[],datasets:[
+    {label:'Points',data:[],borderColor:'#58a6ff',backgroundColor:'rgba(88,166,255,.15)',fill:true,tension:.25}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',maxTicksLimit:6}},y:{ticks:{color:'#8b949e'},beginAtZero:true}}});
+}
+
+function renderState(s){
+  $('solved').textContent = s.solved_count;
+  $('total').textContent = s.total_challenges;
+  $('points').textContent = s.points;
+  const cats = s.categories||{};
+  $('catcount').textContent = Object.keys(cats).length;
+  donut.data.datasets[0].data = [s.solved_count, Math.max(0,s.total_challenges-s.solved_count)];
+  donut.update();
+  const ph = s.points_history||[];
+  lineChart.data.labels = ph.map(p=>new Date(p.ts*1000).toLocaleTimeString());
+  lineChart.data.datasets[0].data = ph.map(p=>p.points);
+  lineChart.update();
+  // category bars
+  const catsEl = $('cats'); catsEl.innerHTML='';
+  const keys = Object.keys(cats).sort();
+  keys.forEach((k,i)=>{
+    const c=cats[k], pct=c.total?Math.round(c.solved/c.total*100):0;
+    const el=document.createElement('div'); el.className='cat';
+    el.innerHTML=`<div class="label"><span>${k}</span><span class="n">${c.solved}/${c.total}</span></div>
+      <div class="bar"><div style="width:${pct}%;background:${palette[i%palette.length]}"></div></div>`;
+    catsEl.appendChild(el);
+  });
+  // category filter
+  const sel=$('catfilter');
+  const cur=sel.value; sel.innerHTML='<option value="">All categories</option>';
+  keys.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;sel.appendChild(o);});
+  sel.value=cur;
+}
+
+function renderTable(){
+  const filter=$('catfilter').value;
+  const tb=$('table').querySelector('tbody'); tb.innerHTML='';
+  challenges.filter(c=>!filter||c.category===filter).forEach(c=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${c.name}</td><td>${c.category}</td>
+      <td><span class="diff">${c.difficulty}</span></td>
+      <td class="status ${c.solved?'st-solved':'st-pending'}">${c.solved?'SOLVED':'pending'}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function addLog(e){
+  const log=$('log'); const div=document.createElement('div');
+  div.className='line '+(e.level||'info');
+  div.innerHTML=`<span class="ts">${ts(e.ts)}</span>${e.msg||''}`;
+  log.appendChild(div); log.scrollTop=log.scrollHeight;
+  while(log.childNodes.length>500) log.removeChild(log.firstChild);
+}
+
+function handleEvent(e){
+  if(e.type==='hello'){ if(e.state) renderState(e.state); return; }
+  if(e.type==='log'){ addLog(e); return; }
+  if(e.type==='solved'){
+    const c=challenges.find(c=>c.key===e.key); if(c){c.solved=true;}
+    fetchState(); renderTable(); return;
+  }
+  if(e.type==='challenges'){ challenges=e.data; renderTable(); return; }
+  if(e.type==='progress'){ fetchState(); return; }
+}
+
+async function fetchState(){
+  try{ const r=await fetch('/api/state'); const s=await r.json(); renderState(s); }
+  catch(_){}
+}
+
+function connect(){
+  const es=new EventSource('/events');
+  es.onmessage=m=>{ try{handleEvent(JSON.parse(m.data));}catch(_){} };
+  es.onerror=()=>{ es.close(); setTimeout(connect,2000); };
+}
+
+(async function init(){
+  initCharts();
+  await fetchState();
+  // load challenge list via state snapshot if available, else scoreboard poll
+  try{ const r=await fetch('/api/challenges'); if(r.ok){ challenges=(await r.json()).data||[]; renderTable(); } }catch(_){}
+  connect();
+})();
+</script>
+</body>
+</html>
