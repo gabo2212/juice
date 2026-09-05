@@ -5,3 +5,7 @@ __pycache__/
 htb/
 keylogger/
 .cursor/
+
+# HTB Cobblestone — flags, creds, session loot
+cobblestone_pentest/artifacts/
+cobblestone_pentest/notes/
