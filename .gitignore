@@ -9,3 +9,15 @@ keylogger/
 # HTB Cobblestone — flags, creds, session loot
 cobblestone_pentest/artifacts/
 cobblestone_pentest/notes/
+
+# HTB AWS Fortress — flags, creds, VPN (see aws_pentest/.gitignore)
+aws_pentest/notes/
+aws_pentest/config/
+aws_pentest/artifacts/flags_captured.txt
+aws_pentest/artifacts/creds_*
+aws_pentest/artifacts/*token*
+aws_pentest/artifacts/jwt_*
+aws_pentest/artifacts/flag*
+aws_pentest/artifacts/*.b64
+aws_pentest/artifacts/s3/
+aws_pentest/artifacts/jobs_dev_git/

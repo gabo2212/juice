@@ -1,0 +1,8 @@
+# Nmap 7.991 scan initiated Sat Sep  5 10:47:35 2026 as: nmap -Pn -sT -T4 --top-ports 200 -sV --version-light -oN /home/gablegoob/Desktop/Skool/keylogtest/aws_pentest/artifacts/nmap_top200_tcp.txt 10.13.37.13
+Nmap scan report for 10.13.37.13
+Host is up.
+All 200 scanned ports on 10.13.37.13 are in ignored states.
+Not shown: 200 filtered tcp ports (no-response)
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Sat Sep  5 10:47:57 2026 -- 1 IP address (1 host up) scanned in 21.67 seconds

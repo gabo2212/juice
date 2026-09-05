@@ -1,0 +1,39 @@
+# HTB AWS Fortress — session loot (never commit)
+notes/
+config/
+
+# Python / payloads
+scripts/__pycache__/
+scripts/*.zip
+scripts/tracking_api*.json
+scripts/*_flag*.json
+
+# Artifacts: default ignore, allow safe recon only
+artifacts/**
+!artifacts/
+!artifacts/nmap*.txt
+!artifacts/target_ip.txt
+!artifacts/attacker_ip.txt
+!artifacts/subdomains_known.txt
+!artifacts/subdomains_from_logs.txt
+
+# Explicit sensitive artifact patterns
+artifacts/flags_captured.txt
+artifacts/creds_*
+artifacts/*token*
+artifacts/jwt_*
+artifacts/flag*
+artifacts/*.b64
+artifacts/lambda_*
+artifacts/shell_access.txt
+artifacts/workflow_variables.json
+artifacts/s3/
+artifacts/jobs_dev_git/
+artifacts/*.db
+artifacts/code.zip
+artifacts/rce.zip
+artifacts/sqs_*
+artifacts/backup_tool
+artifacts/nc4444.*
+artifacts/http8080.*
+artifacts/firmware/

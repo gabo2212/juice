@@ -1,0 +1,27 @@
+# Nmap 7.991 scan initiated Sat Sep  5 10:58:15 2026 as: nmap -Pn -sS -T4 --top-ports 1000 -sV -oN /home/gablegoob/Desktop/Skool/keylogtest/aws_pentest/artifacts/nmap_top1000_15.txt 10.13.37.15
+Nmap scan report for amzcorp.local (10.13.37.15)
+Host is up (0.050s latency).
+Not shown: 986 closed tcp ports (reset)
+PORT     STATE SERVICE       VERSION
+53/tcp   open  domain        (generic dns response: SERVFAIL)
+80/tcp   open  http          Apache httpd 2.4.52 ((Win64))
+88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2026-09-05 14:58:24Z)
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+389/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: amzcorp.local, Site: Default-First-Site-Name)
+445/tcp  open  microsoft-ds?
+464/tcp  open  kpasswd5?
+593/tcp  open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+636/tcp  open  tcpwrapped
+2179/tcp open  vmrdp?
+3268/tcp open  ldap          Microsoft Windows Active Directory LDAP (Domain: amzcorp.local, Site: Default-First-Site-Name)
+3269/tcp open  tcpwrapped
+5985/tcp open  http          Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port53-TCP:V=7.991%I=7%D=9/5%Time=6A9C2E1E%P=x86_64-pc-linux-gnu%r(DNS-
+SF:SD-TCP,30,"\0\.\0\0\x80\x82\0\x01\0\0\0\0\0\0\t_services\x07_dns-sd\x04
+SF:_udp\x05local\0\0\x0c\0\x01");
+Service Info: Host: DC01; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Sat Sep  5 10:58:44 2026 -- 1 IP address (1 host up) scanned in 28.52 seconds

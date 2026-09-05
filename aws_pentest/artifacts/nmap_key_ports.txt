@@ -1,0 +1,26 @@
+# Nmap 7.991 scan initiated Sat Sep  5 10:57:17 2026 as: nmap -Pn -p 53,80,88,135,139,389,443,445,1433,3306,5985,8080,8443,8000,5000,3000 -sV -sC -oN /home/gablegoob/Desktop/Skool/keylogtest/aws_pentest/artifacts/nmap_key_ports.txt 10.13.37.13
+Nmap scan report for amzcorp.local (10.13.37.13)
+Host is up (0.044s latency).
+
+PORT     STATE    SERVICE      VERSION
+53/tcp   filtered domain
+80/tcp   open     http         Apache httpd 2.4.38 ((Debian))
+|_http-title: Hackfail.htb
+|_http-server-header: Apache/2.4.38 (Debian)
+88/tcp   filtered kerberos-sec
+135/tcp  filtered msrpc
+139/tcp  filtered netbios-ssn
+389/tcp  filtered ldap
+443/tcp  filtered https
+445/tcp  filtered microsoft-ds
+1433/tcp filtered ms-sql-s
+3000/tcp filtered ppp
+3306/tcp filtered mysql
+5000/tcp filtered upnp
+5985/tcp filtered wsman
+8000/tcp filtered http-alt
+8080/tcp filtered http-proxy
+8443/tcp filtered https-alt
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Sat Sep  5 10:57:27 2026 -- 1 IP address (1 host up) scanned in 9.59 seconds

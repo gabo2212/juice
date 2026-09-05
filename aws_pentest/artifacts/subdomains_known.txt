@@ -1,0 +1,10 @@
+amzcorp.local
+jobs.amzcorp.local
+logs.amzcorp.local
+services.amzcorp.local
+cloud.amzcorp.local
+inventory.amzcorp.local
+workflow.amzcorp.local
+company-support.amzcorp.local
+jobs-development.amzcorp.local
+dc01.amzcorp.local
